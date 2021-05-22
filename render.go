@@ -13,6 +13,7 @@ type JetRender struct {
 	Options  *RenderOptions
 	Template *jet.Template
 	Data     interface{}
+	Set      *jet.Set
 }
 
 // New creates a new JetRender instance with custom Options.
@@ -39,6 +40,7 @@ func (r JetRender) Instance(name string, data interface{}) render.Render {
 		Data:     data,
 		Options:  r.Options,
 		Template: t,
+		Set:      set,
 	}
 }
 
