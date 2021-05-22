@@ -1,28 +1,30 @@
 package ginjet
 
 import (
-	"github.com/CloudyKit/jet"
-	"github.com/gin-gonic/gin/render"
+	"fmt"
 	"net/http"
-)
+	"reflect"
 
-var htmlContentType = []string{"text/html; charset=utf-8"}
+	"github.com/gin-gonic/gin"
+
+	"github.com/CloudyKit/jet"
+	"github.com/fatih/structs"
+	"github.com/gin-gonic/gin/render"
+)
 
 // JetRender is a custom Gin template renderer using Jet
 type JetRender struct {
-	Options  *RenderOptions
-	Template *jet.Template
-	Data     interface{}
-	Variables jet.VarMap,
-	globals   jet.VarMap,
+	Options   *RenderOptions
+	Template  *jet.Template
+	Variables jet.VarMap
+	Data      interface{}
+	globals   jet.VarMap
 }
 
 // New creates a new JetRender instance with custom Options.
 func New(options *RenderOptions) *JetRender {
-	//set := jet.NewHTMLSet(options.TemplateDir)
 	return &JetRender{
 		Options: options,
-		//Set:set,
 	}
 }
 
@@ -32,6 +34,7 @@ func Default() *JetRender {
 }
 
 func (r JetRender) Instance(name string, data interface{}) render.Render {
+
 	set := jet.NewHTMLSet(r.Options.TemplateDir)
 	//设置全局变量
 	if r.globals != nil {
@@ -68,13 +71,13 @@ func (r JetRender) Instance(name string, data interface{}) render.Render {
 		}
 	}
 
+	fmt.Println(v)
 
 	return JetRender{
-		Data:     data,
-		Options:  r.Options,
-		Template: t,
-		//Set:      set,
+		Data:      data,
 		Variables: v,
+		Options:   r.Options,
+		Template:  t,
 	}
 }
 
@@ -95,15 +98,18 @@ func (r JetRender) Render(w http.ResponseWriter) error {
 	if val := header["Content-Type"]; len(val) == 0 {
 		header["Content-Type"] = []string{r.Options.ContentType}
 	}
-	if err := r.Template.Execute(w, nil, r.Data); err != nil {
+
+	if err := r.Template.Execute(w, r.Variables, r.Data); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (r JetRender) WriteContentType(w http.ResponseWriter) {
+	// Unless already set, write the Content-Type header.
 	header := w.Header()
 	if val := header["Content-Type"]; len(val) == 0 {
 		header["Content-Type"] = []string{r.Options.ContentType}
 	}
+	//r.Template.Execute(w, nil, r.Data)
 }
