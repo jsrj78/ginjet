@@ -18,8 +18,10 @@ type JetRender struct {
 
 // New creates a new JetRender instance with custom Options.
 func New(options *RenderOptions) *JetRender {
+	set := jet.NewHTMLSet(options.TemplateDir)
 	return &JetRender{
 		Options: options,
+		Set:set,
 	}
 }
 
